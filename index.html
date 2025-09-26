@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eco Ed</title>
+  <style>
+    body { margin:0; font-family:Arial, sans-serif; background:#f0f9f0; }
+    #splash { font-size:3rem;font-weight:bold;color:#2e7d32;display:flex;justify-content:center;align-items:center;height:100vh;background:#f0f9f0; }
+    .hidden { display:none!important; }
+    #login { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+    #login h2 { color:#2e7d32; margin-bottom:20px; }
+    #login input { width:80%;max-width:300px;padding:12px;margin:10px 0;border:1px solid #bbb;border-radius:8px;font-size:1rem; }
+    #login button { background:#2e7d32;color:#fff;padding:12px 20px;border:none;border-radius:8px;cursor:pointer;font-size:1rem;margin-top:10px;width:150px; }
+    #login button:hover { background:#1b5e20; }
+    #profilePage { display:flex; height:100vh; }
+    #nav { width:200px;background:#2e7d32;color:#fff;display:flex;flex-direction:column;padding:20px 0; }
+    #nav div { padding:15px 20px;cursor:pointer;border-left:5px solid transparent;transition:.3s; }
+    #nav div:hover, #nav .active { background:#1b5e20;border-left:5px solid #a5d6a7; }
+    #content { flex:1;padding:20px;overflow:auto; }
+    #content h2 { color:#2e7d32;margin-top:0; }
+    .section { display:none; } .section.active { display:block; }
+    .lesson-block { margin-top:20px;padding:15px;background:#fff;border-radius:8px;border:1px solid #ccc; }
+    .lesson-quiz { margin-top:15px; }
+    .lesson-quiz label { display:block;margin:5px 0;cursor:pointer; }
+    .btn { background:#2e7d32;color:#fff;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;margin-top:10px; }
+    .btn:hover { background:#1b5e20; }
+    .result { margin-top:10px;font-weight:bold; }
+    .quiz-block { background:#fff;padding:15px;border-radius:8px;border:1px solid #ccc;margin-bottom:15px; }
+    .quiz-block label { display:block;margin:5px 0;cursor:pointer; }
+    #quizResult { margin-top:20px;font-weight:bold; }
+    .challenge,.task{background:#fff;padding:10px;border:1px solid #ccc;border-radius:8px;margin:8px 0;}
+    .challenge.done,.task.done{text-decoration:line-through;color:gray;}
+    #challengeProgress,#taskProgress{margin-bottom:15px;font-weight:bold;color:#1b5e20;}
+    #ecoPoints{font-size:1.2rem;font-weight:bold;color:#2e7d32;margin-top:15px;}
+  </style>
+</head>
+<body>
+  
+  <div id="splash">🌿 Eco Ed 🌱</div>
+
+  
+  <div id="login" class="hidden">
+    <h2>Login / Sign Up</h2>
+    <input type="text" id="name" placeholder="Enter your name" required/>
+    <input type="text" id="institution" placeholder="Enter your institution" required/>
+    <button onclick="createProfile()">Submit</button>
+  </div>
+
+  
+  <div id="profilePage" class="hidden">
+    <div id="nav">
+      <div class="nav-item active" data-section="profileSection">Profile</div>
+      <div class="nav-item" data-section="lessonsSection">Lessons</div>
+      <div class="nav-item" data-section="challengesSection">Challenges</div>
+      <div class="nav-item" data-section="tasksSection">Tasks</div>
+      <div class="nav-item" data-section="quizzesSection">Quizzes</div>
+      <div class="nav-item" data-section="leadershipSection">Leadership</div>
+    </div>
+    <div id="content">
+    
+      <div id="profileSection" class="section active">
+        <h2>👤 Profile</h2>
+        <p id="profileName"></p>
+        <p id="profileInstitution"></p>
+      </div>
+
+      
+      <div id="lessonsSection" class="section">
+        <h2>📚 Interactive Lessons</h2>
+        <p>Select a lesson:</p>
+        <select id="lessonSelect" onchange="showLesson()">
+          <option value="">-- Choose a topic --</option>
+          <option value="energy">Renewable Energy</option>
+          <option value="water">Water Conservation</option>
+          <option value="waste">Waste Management</option>
+          <option value="air">Air Pollution</option>
+          <option value="climate">Climate Change</option>
+          <option value="biodiversity">Biodiversity</option>
+          <option value="soil">Soil Conservation</option>
+        </select>
+        <div id="lessonContent" class="lesson-block hidden"></div>
+      </div>
+
+      
+      <div id="challengesSection" class="section">
+        <h2>🏆 Challenges</h2>
+        <div id="challengeProgress"></div>
+        <div id="challengesList"></div>
+      </div>
+
+      
+      <div id="tasksSection" class="section">
+        <h2>📝 Eco-Tasks</h2>
+        <div id="taskProgress"></div>
+        <div id="tasksList"></div>
+      </div>
+
+      
+      <div id="quizzesSection" class="section">
+        <h2>❓ Environmental Quiz</h2>
+        <div id="quizArea"></div>
+      </div>
+
+      
+      <div id="leadershipSection" class="section">
+        <h2>🌟 Leadership</h2>
+        <p id="ecoPoints">Total Eco Points: 0</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ecoPoints=0; 
+    function addPoints(p){ ecoPoints+=p; document.getElementById("ecoPoints").innerText="Total Eco Points: "+ecoPoints; }
+
+    setTimeout(()=>{ document.getElementById("splash").classList.add("hidden"); document.getElementById("login").classList.remove("hidden"); },2000);
+
+    function createProfile(){ const n=document.getElementById("name").value.trim(), inst=document.getElementById("institution").value.trim();
+      if(n&&inst){ document.getElementById("login").classList.add("hidden"); document.getElementById("profilePage").classList.remove("hidden");
+        document.getElementById("profileName").innerText="Name: "+n; document.getElementById("profileInstitution").innerText="Institution: "+inst;
+      } else alert("Fill both fields!"); }
+
+    document.querySelectorAll(".nav-item").forEach(item=>{
+      item.addEventListener("click",()=>{ document.querySelectorAll(".nav-item").forEach(nav=>nav.classList.remove("active"));
+        item.classList.add("active"); document.querySelectorAll(".section").forEach(sec=>sec.classList.remove("active"));
+        document.getElementById(item.getAttribute("data-section")).classList.add("active"); });
+    });
+    const lessons={
+      energy:{text:"Renewable energy comes from sunlight, wind, water. It is sustainable.",quizQ:"Which is renewable?",options:["Coal","Solar","Oil"],answer:"Solar"},
+      water:{text:"Water conservation means wise use of water & rainwater harvesting.",quizQ:"Best method to save water?",options:["Tap open","Rainwater harvesting","Overwatering"],answer:"Rainwater harvesting"},
+      waste:{text:"Waste management uses 3Rs: Reduce, Reuse, Recycle.",quizQ:"Which is NOT part of 3Rs?",options:["Reuse","Recycle","Remove"],answer:"Remove"},
+      air:{text:"Air pollution is caused by smoke, vehicles, industries releasing harmful gases.",quizQ:"Which can reduce air pollution?",options:["Cycling","Burning plastic","More cars"],answer:"Cycling"},
+      climate:{text:"Climate change refers to long-term changes in temperature & weather patterns.",quizQ:"Which gas is a major driver?",options:["Nitrogen","Carbon dioxide","Helium"],answer:"Carbon dioxide"},
+      biodiversity:{text:"Biodiversity is variety of living organisms on Earth. It maintains balance.",quizQ:"Which action protects biodiversity?",options:["Deforestation","Wildlife conservation","Pollution"],answer:"Wildlife conservation"},
+      soil:{text:"Soil conservation prevents erosion & keeps soil fertile.",quizQ:"Which method helps soil conservation?",options:["Overgrazing","Contour plowing","Deforestation"],answer:"Contour plowing"}
+    };
+    function showLesson(){ const t=document.getElementById("lessonSelect").value, box=document.getElementById("lessonContent");
+      if(lessons[t]){ let html=`<p>${lessons[t].text}</p><div class="lesson-quiz"><strong>Quick Check:</strong><br>${lessons[t].quizQ}`;
+        lessons[t].options.forEach(opt=>{ html+=`<label><input type="radio" name="quiz_${t}" value="${opt}"> ${opt}</label>`; });
+        html+=`<button class="btn" onclick="checkLessonQuiz('${t}')">Check Answer</button><div id="lessonResult"></div></div>`;
+        box.innerHTML=html; box.classList.remove("hidden");
+      } else box.classList.add("hidden"); }
+    function checkLessonQuiz(t){ const sel=document.querySelector(`input[name="quiz_${t}"]:checked`), res=document.getElementById("lessonResult");
+      if(sel){ if(sel.value===lessons[t].answer){ res.innerHTML="<span class='result' style='color:green'>✅ Correct!</span>"; addPoints(5);}
+        else res.innerHTML="<span class='result' style='color:red'>❌ Try again.</span>"; } else alert("Pick an option!"); }
+
+    
+    const challenges=["Plant a tree 🌳","Avoid single-use plastic ♻️","Use bicycle/car-pool 🚴‍♂️","Segregate waste 🗑️","Turn off lights 💡"];
+    function loadChallenges(){ const list=document.getElementById("challengesList"); list.innerHTML=""; challenges.forEach((ch,i)=>{ const d=document.createElement("div"); d.className="challenge"; d.innerHTML=`<label><input type="checkbox" onchange="toggleChallenge(${i},this)"> ${ch}</label>`; list.appendChild(d);}); updateChallengeProgress();}
+    function toggleChallenge(i,cb){ const d=document.querySelectorAll(".challenge")[i]; if(cb.checked){ d.classList.add("done"); addPoints(5);} else d.classList.remove("done"); updateChallengeProgress();}
+    function updateChallengeProgress(){ const done=document.querySelectorAll(".challenge.done").length; document.getElementById("challengeProgress").innerText=`Progress: ${done}/${challenges.length} challenges completed`; }
+
+    
+    const tasks=["Plant a sapling 🌱","Carry a reusable bottle 💧","Switch off unused devices ⚡","Collect bottles for recycling ♻️","Clean local park 🧹"];
+    function loadTasks(){ const list=document.getElementById("tasksList"); list.innerHTML=""; tasks.forEach((tsk,i)=>{ const d=document.createElement("div"); d.className="task"; d.innerHTML=`${tsk} <button class="btn" onclick="completeTask(${i})">Mark Done</button>`; list.appendChild(d);}); updateTaskProgress();}
+    function completeTask(i){ const t=document.querySelectorAll(".task")[i]; if(!t.classList.contains("done")){ t.classList.add("done"); t.innerHTML=tasks[i]+" ✅ Completed"; addPoints(10);} updateTaskProgress();}
+    function updateTaskProgress(){ const done=document.querySelectorAll(".task.done").length; document.getElementById("taskProgress").innerText=`Progress: ${done}/${tasks.length} tasks completed`; }
+
+    
+    const answers={q1:"B",q2:"A",q3:"B",q4:"C",q5:"A",q6:"B",q7:"A",q8:"A",q9:"B",q10:"B",q11:"A",q12:"A",q13:"A"};
+    const qdata=[
+      ["q1","Which gas do trees absorb during photosynthesis?",["Oxygen","Carbon dioxide","Nitrogen"]],
+      ["q2","What is the main cause of global warming?",["Greenhouse gases","Volcanoes","Recycling"]],
+      ["q3","Which of these is biodegradable?",["Plastic bottle","Banana peel","Glass"]],
+      ["q4","Which is NOT renewable?",["Solar","Wind","Coal"]],
+      ["q5","Reduce in 3Rs means?",["Reduce waste","Reduce studying","Reduce oxygen"]],
+      ["q6","Earth Hour encourages switching off:",["TV","All lights","Fans only"]],
+      ["q7","Which contributes to air pollution?",["Car emissions","Solar panels","Wind turbines"]],
+      ["q8","Which can be composted?",["Vegetable peels","Plastic bags","Glass jars"]],
+      ["q9","Earth’s water coverage is?",["50%","71%","25%"]],
+      ["q10","Which gas causes acid rain?",["Oxygen","Sulfur dioxide","Hydrogen"]],
+      ["q11","Ozone layer protects from:",["UV radiation","Carbon dioxide","Sound waves"]],
+      ["q12","Which is greenhouse gas?",["Carbon dioxide","Nitrogen","Helium"]],
+      ["q13","Cleanest form of energy?",["Solar","Coal","Diesel"]]
+    ];
+    function buildQuiz(){ const area=document.getElementById("quizArea"); area.innerHTML=""; qdata.forEach(([id,q,opts],i)=>{ let b=`<div class="quiz-block"><p><b>${i+1}. ${q}</b></p>`; opts.forEach((op,j)=>{ const v=String.fromCharCode(65+j); b+=`<label><input type="radio" name="${id}" value="${v}"/> ${op}</label>`; }); b+="</div>"; area.innerHTML+=b;}); area.innerHTML+=`<button class="btn" onclick="submitQuiz()">Submit Quiz</button><div id="quizResult"></div>`; }
+    function submitQuiz(){ let score=0; Object.keys(answers).forEach(q=>{ const c=document.querySelector(`input[name="${q}"]:checked`); if(c&&c.value===answers[q]) score++;}); document.getElementById("quizResult").innerText=`You scored ${score}/13`; addPoints(score*5); }
+
+    window.onload=function(){ loadChallenges(); loadTasks(); buildQuiz(); }
+  </script>
+</body>
+</html>
